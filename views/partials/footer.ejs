@@ -1,0 +1,122 @@
+    </main>
+
+    <!-- Interactive AI Assistant Modal (Real /chatbot integration) -->
+    <div class="modal fade" id="assistantModal" tabindex="-1" aria-labelledby="assistantModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bot-panel">
+                <div class="modal-header border-bottom border-2 border-dark bg-warning-subtle">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="tag-stamp tag-dark"><i class="fas fa-robot text-warning"></i></span>
+                        <h5 class="modal-title font-display mb-0" id="assistantModalLabel">IOAS Chatbot Terminal</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <p class="text-muted small mb-2">
+                        Simulate the conversational assistant, or chat directly with the live bot on Telegram:
+                    </p>
+                    <a href="https://t.me/IOAS_AlertBot" target="_blank" rel="noopener noreferrer" class="btn btn-funky btn-funky-lime btn-sm mb-3 w-100 text-center text-decoration-none">
+                        <i class="fab fa-telegram me-1"></i> Chat with @IOAS_AlertBot on Telegram
+                    </a>
+                    
+                    <div id="chatStream" class="d-flex flex-column gap-2 mb-3 p-3 bg-light rounded border border-2 border-dark" style="max-height: 280px; overflow-y: auto;">
+                        <div class="chat-bubble-bot">
+                            👋 Hi! I'm the IOAS assistant. Ask me:
+                            <br>• <em>"What AI hackathons are coming up?"</em>
+                            <br>• <em>"Are there any Scopus conferences?"</em>
+                            <br>• <em>"subscribe AI, Web3"</em>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-1 flex-wrap mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-dark fw-bold rounded-pill text-xs px-2 py-0 suggestion-pill" data-prompt="Show upcoming hackathons">Hackathons</button>
+                        <button type="button" class="btn btn-sm btn-outline-dark fw-bold rounded-pill text-xs px-2 py-0 suggestion-pill" data-prompt="List Scopus conferences">Conferences</button>
+                        <button type="button" class="btn btn-sm btn-outline-dark fw-bold rounded-pill text-xs px-2 py-0 suggestion-pill" data-prompt="subscribe AI, Machine Learning">Subscribe AI</button>
+                    </div>
+
+                    <form id="chatForm" class="d-flex gap-2">
+                        <input type="text" id="chatInput" class="form-control form-control-funky" placeholder="Ask a question or type 'subscribe ...'" required>
+                        <button type="submit" class="btn btn-funky btn-funky-primary px-3" id="chatSubmitBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Funky Modern Footer -->
+    <footer class="mt-auto py-4 bg-white border-top border-2 border-dark">
+        <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 text-muted small">
+            <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold text-dark font-display">IOAS</span>
+                <span>·</span>
+                <span>Intelligent Opportunity Aggregation System</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span class="font-mono-num">Real-time Unstop · Devfolio · Devpost · IEEE</span>
+                <span>·</span>
+                <a href="#top" class="text-dark fw-bold text-decoration-none hover-underline">Back to Top ↑</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Client-side Interactive Script -->
+    <script>
+        // Chatbot terminal simulation
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const chatStream = document.getElementById('chatStream');
+        const chatSubmitBtn = document.getElementById('chatSubmitBtn');
+
+        if (chatForm) {
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const text = chatInput.value.trim();
+                if (!text) return;
+
+                // Append user bubble
+                const userBubble = document.createElement('div');
+                userBubble.className = 'chat-bubble-user';
+                userBubble.textContent = text;
+                chatStream.appendChild(userBubble);
+                chatInput.value = '';
+                chatStream.scrollTop = chatStream.scrollHeight;
+
+                // Loading indicator
+                const botBubble = document.createElement('div');
+                botBubble.className = 'chat-bubble-bot text-muted';
+                botBubble.innerHTML = '<i class="fas fa-circle-notch fa-spin me-1"></i> Thinking...';
+                chatStream.appendChild(botBubble);
+                chatStream.scrollTop = chatStream.scrollHeight;
+
+                try {
+                    const res = await fetch('/chatbot', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phone: '917219125818', text: text })
+                    });
+                    const data = await res.json();
+                    botBubble.className = 'chat-bubble-bot';
+                    botBubble.innerHTML = (data.reply || 'No reply received.').replace(/\n/g, '<br>');
+                } catch (err) {
+                    botBubble.className = 'chat-bubble-bot text-danger';
+                    botBubble.textContent = 'Error connecting to chatbot server.';
+                }
+                chatStream.scrollTop = chatStream.scrollHeight;
+            });
+
+            // Quick suggestions
+            document.querySelectorAll('.suggestion-pill').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    chatInput.value = btn.getAttribute('data-prompt') || '';
+                    chatForm.dispatchEvent(new Event('submit'));
+                });
+            });
+        }
+    </script>
+</body>
+</html>

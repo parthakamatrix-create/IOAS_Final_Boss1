@@ -1,0 +1,6 @@
+{
+  "name": "IOAS - Opportunity Aggregator",
+  "description": "Consolidated view of Hackathons, Competitions, and Conferences with deadline alerts and personalization.",
+  "requestFramePermissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,265 @@
+<% 
+  const allOpportunities = locals.opportunities || [];
+  const now = new Date();
+%>
+
+<div class="opportunities-grid-component">
+    <!-- Component Controls: View Mode & Sorting -->
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <span class="tag-stamp tag-dark"><i class="fas fa-th-large me-1"></i> Funky Card Grid</span>
+            <span class="text-muted small">Showing <span class="fw-bold font-mono-num text-dark grid-total-count"><%= allOpportunities.length %></span> curated opportunities</span>
+        </div>
+        
+        <div class="d-flex align-items-center gap-2">
+            <label class="small fw-bold text-muted d-none d-sm-inline">Sort by:</label>
+            <select class="form-select form-select-sm form-control-funky py-1 px-2 text-xs fw-bold" id="gridSortSelect" style="width: auto;">
+                <option value="deadline-asc">⚡ Nearest Deadline</option>
+                <option value="newest" selected>✨ Newest Added</option>
+                <option value="title-asc">🔤 Title (A-Z)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Responsive Funky Grid -->
+    <div class="row g-4" id="funkyCardGrid">
+        <% if (allOpportunities && allOpportunities.length > 0) { %>
+            <% allOpportunities.forEach(function(opp, index) { 
+                let daysLeft = null;
+                let isUrgent = false;
+                const relevantDeadline = opp.submission_deadline || opp.registration_deadline;
+                
+                if (relevantDeadline) {
+                    const d = new Date(relevantDeadline);
+                    daysLeft = Math.ceil((d.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                    if (daysLeft <= 14) isUrgent = true;
+                }
+
+                // Funky accent colors based on type and platform
+                let accentColor = '#fde047'; // yellow default
+                let typeBadgeClass = 'tag-yellow';
+                if (opp.type === 'Hackathon') {
+                    accentColor = '#bef264'; // lime
+                    typeBadgeClass = 'tag-lime';
+                } else if (opp.type === 'Competition') {
+                    accentColor = '#c084fc'; // purple
+                    typeBadgeClass = 'tag-purple';
+                } else if (opp.type === 'Conference') {
+                    accentColor = '#86efac'; // green
+                    typeBadgeClass = 'tag-green';
+                }
+
+                const platformIcons = {
+                    'Unstop': 'fa-bolt',
+                    'Devfolio': 'fa-cubes',
+                    'Devpost': 'fa-code-branch',
+                    'IEEE': 'fa-atom',
+                    'ACM': 'fa-microchip',
+                    'Springer': 'fa-book-open'
+                };
+                const platformIcon = platformIcons[opp.source_platform] || 'fa-globe';
+            %>
+            <div class="col-12 col-md-6 col-xl-4 funky-grid-item"
+                 data-type="<%= opp.type.toLowerCase() %>"
+                 data-platform="<%= opp.source_platform.toLowerCase() %>"
+                 data-urgent="<%= isUrgent ? 'true' : 'false' %>"
+                 data-days-left="<%= daysLeft !== null ? daysLeft : 9999 %>"
+                 data-timestamp="<%= new Date(opp.created_at).getTime() %>"
+                 data-title="<%= opp.title.toLowerCase() %>"
+                 data-text="<%= (opp.title + ' ' + (opp.category || '') + ' ' + opp.source_platform + ' ' + (opp.organizer || '')).toLowerCase() %>">
+                
+                <div class="funky-card funky-opp-card h-100 d-flex flex-column justify-content-between position-relative overflow-hidden" 
+                     style="border-top: 6px solid <%= accentColor %>;">
+                    
+                    <!-- Decorative corner stamp for Scopus or urgent items -->
+                    <% if (opp.is_scopus_indexed) { %>
+                        <div class="position-absolute end-0 top-0 mt-2 me-2">
+                            <span class="tag-stamp tag-green font-mono-num" title="Scopus Indexed Academic Conference">
+                                <i class="fas fa-check-circle me-1"></i> SCOPUS
+                            </span>
+                        </div>
+                    <% } else if (isUrgent && daysLeft !== null) { %>
+                        <div class="position-absolute end-0 top-0 mt-2 me-2">
+                            <span class="tag-stamp tag-coral font-mono-num">
+                                <i class="fas fa-fire me-1"></i> <%= daysLeft > 0 ? daysLeft + 'd left' : 'Today!' %>
+                            </span>
+                        </div>
+                    <% } %>
+
+                    <div>
+                        <!-- Header Bar with Tags -->
+                        <div class="p-3 pb-2 border-bottom border-2 border-dark bg-white">
+                            <div class="d-flex align-items-center gap-2 flex-wrap" style="max-width: 75%;">
+                                <span class="tag-stamp <%= typeBadgeClass %>"><%= opp.type %></span>
+                                <span class="tag-stamp tag-dark">
+                                    <i class="fas <%= platformIcon %> me-1"></i> <%= opp.source_platform %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-3">
+                            <!-- Organizer Meta -->
+                            <% if (opp.organizer) { %>
+                                <div class="text-muted small fw-bold text-uppercase mb-1 d-flex align-items-center gap-1 font-mono-num" style="font-size: 0.75rem;">
+                                    <i class="fas fa-university text-secondary"></i>
+                                    <span><%= opp.organizer %></span>
+                                </div>
+                            <% } %>
+
+                            <!-- Title -->
+                            <h4 class="font-display fs-5 fw-bold mb-2 text-dark">
+                                <a href="<%= opp.url %>" target="_blank" rel="noopener noreferrer" class="text-dark text-decoration-none hover-underline">
+                                    <%= opp.title %>
+                                </a>
+                            </h4>
+
+                            <!-- Category Chips -->
+                            <% if (opp.category) { %>
+                                <div class="d-flex align-items-center gap-1 flex-wrap mb-3">
+                                    <% opp.category.split(',').slice(0, 3).forEach(function(cat) { %>
+                                        <span class="badge bg-light text-dark border border-1 border-dark rounded-pill py-1 px-2 font-mono-num" style="font-size: 0.7rem;">
+                                            #<%= cat.trim() %>
+                                        </span>
+                                    <% }); %>
+                                </div>
+                            <% } %>
+
+                            <!-- Funky Milestone / Deadline Box -->
+                            <div class="p-3 rounded border border-2 border-dark mb-2" style="background-color: #fafaf9;">
+                                <% if (opp.type === 'Conference') { %>
+                                    <!-- 4-Stage Matrix for Conferences -->
+                                    <div class="row g-2 font-mono-num" style="font-size: 0.75rem;">
+                                        <div class="col-6 border-bottom border-1 border-secondary-subtle pb-1">
+                                            <span class="text-muted d-block">REGISTRATION</span>
+                                            <strong class="text-dark"><%= opp.registration_deadline ? opp.registration_deadline.split('T')[0] : 'Open' %></strong>
+                                        </div>
+                                        <div class="col-6 border-bottom border-1 border-secondary-subtle pb-1">
+                                            <span class="text-muted d-block">PAPER SUBMISSION</span>
+                                            <strong class="text-danger"><%= opp.submission_deadline ? opp.submission_deadline.split('T')[0] : 'N/A' %></strong>
+                                        </div>
+                                        <div class="col-6 pt-1">
+                                            <span class="text-muted d-block">NOTIFICATION</span>
+                                            <strong class="text-dark"><%= opp.notification_date ? opp.notification_date.split('T')[0] : 'N/A' %></strong>
+                                        </div>
+                                        <div class="col-6 pt-1">
+                                            <span class="text-muted d-block">CAMERA READY</span>
+                                            <strong class="text-dark"><%= opp.camera_ready_deadline ? opp.camera_ready_deadline.split('T')[0] : 'N/A' %></strong>
+                                        </div>
+                                    </div>
+                                <% } else { %>
+                                    <!-- Hackathon / Competition Deadlines -->
+                                    <div class="d-flex flex-column gap-1 font-mono-num small">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted"><i class="fas fa-stopwatch text-danger me-1"></i> Registration:</span>
+                                            <span class="fw-bold <%= isUrgent ? 'text-danger' : 'text-dark' %>">
+                                                <%= opp.registration_deadline ? opp.registration_deadline.split('T')[0] : 'Rolling / Open' %>
+                                            </span>
+                                        </div>
+                                        <% if (opp.submission_deadline) { %>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="text-muted"><i class="fas fa-upload text-warning me-1"></i> Submission:</span>
+                                                <span class="fw-bold text-dark"><%= opp.submission_deadline.split('T')[0] %></span>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Action Bar -->
+                    <div class="p-3 pt-0">
+                        <div class="d-flex align-items-center justify-content-between gap-2 border-top border-2 border-dark pt-3">
+                            <div class="d-flex align-items-center gap-1">
+                                <!-- Share / Copy Action Buttons -->
+                                <button type="button" class="btn btn-sm btn-outline-dark copy-opp-btn" data-url="<%= opp.url %>" title="Copy Opportunity URL">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                                <a href="https://t.me/share/url?url=<%= encodeURIComponent(opp.url) %>&text=<%= encodeURIComponent('Check out ' + opp.title + ' on IOAS Radar!') %>" 
+                                   target="_blank" rel="noopener noreferrer" 
+                                   class="btn btn-sm btn-outline-dark" title="Share to Telegram">
+                                    <i class="fab fa-telegram-plane text-primary"></i>
+                                </a>
+                            </div>
+
+                            <!-- Primary CTA Button -->
+                            <a href="<%= opp.url %>" target="_blank" rel="noopener noreferrer" 
+                               class="btn btn-funky <%= opp.type === 'Conference' ? 'btn-funky-lime' : 'btn-funky-primary' %> btn-sm px-3">
+                                <span>Apply Now</span>
+                                <i class="fas fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        <% } else { %>
+            <div class="col-12">
+                <div class="funky-card p-5 text-center bg-white">
+                    <i class="fas fa-inbox fa-3x mb-3 text-muted"></i>
+                    <h3 class="font-display">No opportunities to display</h3>
+                    <p class="text-muted">Run the aggregation pipeline to discover hackathons and conferences.</p>
+                    <form action="/run-scraper" method="POST">
+                        <button type="submit" class="btn btn-funky btn-funky-primary btn-sm">
+                            <i class="fas fa-sync-alt me-1"></i> Run Aggregation Pipeline
+                        </button>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- Component Script for Live Sorting & Quick Copy -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sortSelect = document.getElementById('gridSortSelect');
+        const gridContainer = document.getElementById('funkyCardGrid');
+
+        if (sortSelect && gridContainer) {
+            sortSelect.addEventListener('change', () => {
+                const sortMode = sortSelect.value;
+                const items = Array.from(gridContainer.querySelectorAll('.funky-grid-item'));
+
+                items.sort((a, b) => {
+                    if (sortMode === 'deadline-asc') {
+                        const daysA = parseInt(a.getAttribute('data-days-left') || '9999', 10);
+                        const daysB = parseInt(b.getAttribute('data-days-left') || '9999', 10);
+                        return daysA - daysB;
+                    } else if (sortMode === 'newest') {
+                        const timeA = parseInt(a.getAttribute('data-timestamp') || '0', 10);
+                        const timeB = parseInt(b.getAttribute('data-timestamp') || '0', 10);
+                        return timeB - timeA;
+                    } else if (sortMode === 'title-asc') {
+                        const titleA = a.getAttribute('data-title') || '';
+                        const titleB = b.getAttribute('data-title') || '';
+                        return titleA.localeCompare(titleB);
+                    }
+                    return 0;
+                });
+
+                items.forEach(item => gridContainer.appendChild(item));
+            });
+        }
+
+        // Quick Copy Opportunity URL with Tooltip / Button State Feedback
+        document.querySelectorAll('.copy-opp-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const url = btn.getAttribute('data-url');
+                if (navigator.clipboard && url) {
+                    navigator.clipboard.writeText(url).then(() => {
+                        const originalHtml = btn.innerHTML;
+                        btn.innerHTML = '<i class="fas fa-check text-success"></i>';
+                        btn.classList.add('bg-dark', 'text-white');
+                        setTimeout(() => {
+                            btn.innerHTML = originalHtml;
+                            btn.classList.remove('bg-dark', 'text-white');
+                        }, 1600);
+                    });
+                }
+            });
+        });
+    });
+</script>

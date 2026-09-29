@@ -1,0 +1,89 @@
+<%- include('partials/header', { activeNav: 'alerts' }) %>
+
+<div class="row mb-4 align-items-center">
+    <div class="col-md-7">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="tag-stamp tag-green"><i class="fab fa-whatsapp me-1"></i> WhatsApp Alerts Feed</span>
+            <span class="tag-stamp tag-dark"><i class="fas fa-history me-1"></i> Historical Logs</span>
+        </div>
+        <h1 class="display-6 font-display fw-bold mb-1">Dispatched Alerts Stream</h1>
+        <p class="text-muted mb-0">Live log of notifications pushed to registered subscriber channels and webhooks.</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <div class="d-flex align-items-center justify-content-md-end gap-2 flex-wrap">
+            <a href="/" class="btn btn-funky btn-funky-white btn-sm">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+            <form action="/send-alerts" method="POST" class="d-inline m-0">
+                <button type="submit" class="btn btn-funky btn-funky-lime btn-sm">
+                    <i class="fas fa-paper-plane me-1"></i> Trigger New Run
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-9 mx-auto">
+        <% if (messages && messages.length > 0) { %>
+            <div class="funky-card mb-4">
+                <div class="funky-card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="tag-stamp tag-lime"><i class="fas fa-broadcast-tower me-1"></i> Latest Batch</span>
+                        <span class="fw-bold font-display">Dispatched Messages (<%= messages.length %>)</span>
+                    </div>
+                    <span class="text-muted small font-mono-num">Real-time Delivery Queue</span>
+                </div>
+                
+                <div class="funky-card-body bg-light p-4">
+                    <% messages.forEach(function(msg, index) { %>
+                        <div class="funky-card bg-white p-3 mb-3 border-2 border-dark" style="border-radius: 8px;">
+                            <div class="d-flex justify-content-between align-items-center border-bottom border-1 border-secondary-subtle pb-2 mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="tag-stamp tag-yellow">Msg #<%= index + 1 %></span>
+                                    <span class="tag-stamp tag-dark"><i class="fab fa-whatsapp text-success me-1"></i> Broadcast</span>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-dark py-0 px-2 fw-bold text-xs copy-btn" data-text="<%- msg.replace(/"/g, '&quot;') %>">
+                                    <i class="fas fa-copy me-1"></i> Copy Text
+                                </button>
+                            </div>
+                            <div class="p-2 font-mono-num small" style="white-space: pre-wrap; line-height: 1.5;"><%= msg %></div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="funky-card p-5 text-center bg-white">
+                <div class="d-inline-flex align-items-center justify-content-center bg-warning-subtle border border-2 border-dark rounded-circle p-4 mb-3" style="width: 80px; height: 80px;">
+                    <i class="fab fa-whatsapp fa-2x text-dark"></i>
+                </div>
+                <h3 class="font-display fw-bold mb-2">No alerts have been dispatched yet</h3>
+                <p class="text-muted mx-auto mb-4" style="max-width: 480px;">
+                    The notification system scans active opportunities and tests them against subscriber interests, branches, and upcoming deadlines.
+                </p>
+                <form action="/send-alerts" method="POST">
+                    <button type="submit" class="btn btn-funky btn-funky-lime px-4 py-2">
+                        <i class="fas fa-bell me-1"></i> Send First Batch of Alerts
+                    </button>
+                </form>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const text = btn.getAttribute('data-text');
+            if (navigator.clipboard && text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const original = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check text-success me-1"></i> Copied!';
+                    setTimeout(() => { btn.innerHTML = original; }, 1800);
+                });
+            }
+        });
+    });
+</script>
+
+<%- include('partials/footer') %>

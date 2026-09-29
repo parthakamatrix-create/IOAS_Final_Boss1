@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOAS - Opportunity Aggregator</title>
+    <meta name="description" content="Consolidated view of Hackathons, Competitions, and Conferences with deadline alerts and personalization.">
+    <meta property="og:title" content="IOAS - Opportunity Aggregator">
+    <meta property="og:description" content="Consolidated view of Hackathons, Competitions, and Conferences with deadline alerts and personalization.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS & FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js 3D Library for Animated Character -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Instant Dark Mode Init Script (Prevents FOUC) -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('ioas_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {}
+        })();
+    </script>
+
+    <style>
+        :root {
+            --bg-canvas: #faf8f5;
+            --ink-black: #0f172a;
+            --surface-white: #ffffff;
+            --brand-yellow: #fde047;
+            --brand-lime: #bef264;
+            --brand-coral: #fb923c;
+            --brand-purple: #c084fc;
+            --brand-cyan: #67e8f9;
+            --border-heavy: 2px solid #0f172a;
+            --shadow-hard: 4px 4px 0px #0f172a;
+            --shadow-hard-sm: 2px 2px 0px #0f172a;
+            --shadow-hard-hover: 6px 6px 0px #0f172a;
+            --radius-box: 10px;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            background-image: radial-gradient(#d6d3cb 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--ink-black);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .font-mono-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Top Bar Neo Navigation */
+        .funky-nav {
+            background: #ffffff;
+            border-bottom: var(--border-heavy);
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        .brand-logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--ink-black);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-bolt {
+            background: var(--brand-yellow);
+            border: var(--border-heavy);
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            box-shadow: var(--shadow-hard-sm);
+        }
+
+        .nav-funky-link {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--ink-black);
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .nav-funky-link:hover, .nav-funky-link.active {
+            background: var(--brand-yellow);
+            color: var(--ink-black);
+        }
+
+        /* Funky Hard Buttons */
+        .btn-funky {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 700;
+            border: var(--border-heavy);
+            border-radius: 8px;
+            box-shadow: var(--shadow-hard-sm);
+            padding: 8px 16px;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            white-space: nowrap;
+        }
+
+        .btn-funky:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: var(--shadow-hard);
+        }
+
+        .btn-funky:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        .btn-funky-primary {
+            background: var(--brand-yellow);
+            color: var(--ink-black);
+        }
+
+        .btn-funky-lime {
+            background: var(--brand-lime);
+            color: var(--ink-black);
+        }
+
+        .btn-funky-purple {
+            background: var(--brand-purple);
+            color: #ffffff;
+        }
+
+        .btn-funky-dark {
+            background: var(--ink-black);
+            color: #ffffff;
+        }
+
+        .btn-funky-white {
+            background: #ffffff;
+            color: var(--ink-black);
+        }
+
+        /* Funky Cards */
+        .funky-card {
+            background: var(--surface-white);
+            border: var(--border-heavy);
+            border-radius: var(--radius-box);
+            box-shadow: var(--shadow-hard);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            margin-bottom: 24px;
+        }
+
+        .funky-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: var(--shadow-hard-hover);
+        }
+
+        .funky-card-header {
+            background: transparent;
+            border-bottom: var(--border-heavy);
+            padding: 14px 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .funky-card-body {
+            padding: 18px;
+        }
+
+        /* Crisp Badges & Tags */
+        .tag-stamp {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1.5px solid var(--ink-black);
+            border-radius: 4px;
+            box-shadow: 1.5px 1.5px 0px var(--ink-black);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .tag-lime { background: var(--brand-lime); color: var(--ink-black); }
+        .tag-yellow { background: var(--brand-yellow); color: var(--ink-black); }
+        .tag-cyan { background: var(--brand-cyan); color: var(--ink-black); }
+        .tag-coral { background: var(--brand-coral); color: #ffffff; }
+        .tag-purple { background: var(--brand-purple); color: #ffffff; }
+        .tag-green { background: #86efac; color: var(--ink-black); }
+        .tag-dark { background: var(--ink-black); color: #ffffff; }
+
+        /* Form Controls */
+        .form-control-funky {
+            border: var(--border-heavy);
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-weight: 600;
+            color: var(--ink-black);
+            box-shadow: 2px 2px 0px rgba(15, 23, 42, 0.15);
+            transition: box-shadow 0.15s ease;
+        }
+
+        .form-control-funky:focus {
+            outline: none;
+            box-shadow: var(--shadow-hard-sm);
+            border-color: var(--ink-black);
+            background-color: #fffef8;
+        }
+
+        .form-check-funky .form-check-input {
+            border: var(--border-heavy);
+            border-radius: 4px;
+            width: 1.25em;
+            height: 1.25em;
+            cursor: pointer;
+        }
+
+        .form-check-funky .form-check-input:checked {
+            background-color: var(--ink-black);
+            border-color: var(--ink-black);
+        }
+
+        /* Banner & Alert Notifications */
+        .funky-alert {
+            border: var(--border-heavy);
+            border-radius: 8px;
+            box-shadow: var(--shadow-hard-sm);
+            font-weight: 600;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+        }
+
+        .funky-alert-success { background: #dcfce7; color: #14532d; }
+        .funky-alert-danger { background: #fee2e2; color: #7f1d1d; }
+        .funky-alert-info { background: #e0f2fe; color: #075985; }
+
+        /* Quick Filter Tabs */
+        .tab-btn {
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border: 1.5px solid var(--ink-black);
+            background: #ffffff;
+            color: var(--ink-black);
+            border-radius: 6px;
+            box-shadow: 2px 2px 0px var(--ink-black);
+            cursor: pointer;
+            transition: all 0.1s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            background: #fef08a;
+        }
+
+        .tab-btn.active {
+            background: var(--ink-black);
+            color: #ffffff;
+            box-shadow: none;
+            transform: translate(2px, 2px);
+        }
+
+        /* Drawer / Modal simulation */
+        .bot-panel {
+            background: #ffffff;
+            border: var(--border-heavy);
+            border-radius: var(--radius-box);
+            box-shadow: var(--shadow-hard);
+        }
+
+        .chat-bubble-user {
+            background: var(--brand-yellow);
+            border: 1.5px solid var(--ink-black);
+            border-radius: 12px 12px 2px 12px;
+            padding: 8px 14px;
+            font-weight: 600;
+            align-self: flex-end;
+            box-shadow: 2px 2px 0 var(--ink-black);
+            max-width: 85%;
+        }
+
+        .chat-bubble-bot {
+            background: #f1f5f9;
+            border: 1.5px solid var(--ink-black);
+            border-radius: 12px 12px 12px 2px;
+            padding: 10px 14px;
+            align-self: flex-start;
+            box-shadow: 2px 2px 0 var(--ink-black);
+            max-width: 90%;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+        }
+
+        /* =========================================
+           DARK MODE STYLES & NEOBRUTALIST THEME
+           ========================================= */
+        [data-theme="dark"] {
+            --bg-canvas: #090d16;
+            --ink-black: #f8fafc;
+            --surface-white: #131c2e;
+            --border-heavy: 2px solid #334155;
+            --shadow-hard: 4px 4px 0px #020617;
+            --shadow-hard-sm: 2px 2px 0px #020617;
+            --shadow-hard-hover: 6px 6px 0px #020617;
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--bg-canvas);
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            color: #f1f5f9;
+        }
+
+        [data-theme="dark"] .funky-nav {
+            background: #0f172a;
+            border-bottom: 2px solid #334155;
+        }
+
+        [data-theme="dark"] .brand-logo,
+        [data-theme="dark"] .nav-funky-link {
+            color: #f8fafc;
+        }
+        [data-theme="dark"] .nav-funky-link:hover,
+        [data-theme="dark"] .nav-funky-link.active {
+            background: #1e293b;
+        }
+
+        [data-theme="dark"] .funky-card {
+            background: #131c2e;
+            border-color: #334155;
+            box-shadow: 4px 4px 0px #020617;
+            color: #f1f5f9;
+        }
+
+        [data-theme="dark"] .funky-card-header {
+            background: #1a253c !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+
+        [data-theme="dark"] .text-dark {
+            color: #f8fafc !important;
+        }
+
+        [data-theme="dark"] .text-muted {
+            color: #94a3b8 !important;
+        }
+
+        [data-theme="dark"] .bg-white {
+            background-color: #131c2e !important;
+        }
+
+        [data-theme="dark"] .bg-light {
+            background-color: #182234 !important;
+        }
+
+        [data-theme="dark"] .border-dark {
+            border-color: #334155 !important;
+        }
+
+        [data-theme="dark"] .form-control-funky {
+            background-color: #182234;
+            color: #f8fafc;
+            border-color: #334155;
+        }
+
+        [data-theme="dark"] .form-control-funky:focus {
+            background-color: #1e2d45;
+            color: #ffffff;
+            border-color: var(--brand-yellow);
+        }
+
+        [data-theme="dark"] .tab-btn {
+            background: #182234;
+            color: #cbd5e1;
+            border-color: #334155;
+            box-shadow: 2px 2px 0px #020617;
+        }
+
+        [data-theme="dark"] .tab-btn:hover {
+            background: #1e2d45;
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .tab-btn.active {
+            background: var(--brand-yellow);
+            color: #0f172a;
+            border-color: #0f172a;
+        }
+
+        [data-theme="dark"] .btn-funky-white {
+            background: #1e293b;
+            color: #f1f5f9;
+            border-color: #334155;
+        }
+        [data-theme="dark"] .btn-funky-white:hover {
+            background: #334155;
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .btn-funky-dark {
+            background: #334155;
+            color: #ffffff;
+            border-color: #475569;
+        }
+
+        [data-theme="dark"] .bot-panel,
+        [data-theme="dark"] .modal-content {
+            background: #131c2e;
+            color: #f1f5f9;
+            border-color: #334155;
+        }
+
+        [data-theme="dark"] .chat-bubble-bot {
+            background: #1e293b;
+            color: #f1f5f9;
+            border-color: #334155;
+        }
+
+        /* 3D Character Companion Card & Elements */
+        .companion-card {
+            background: linear-gradient(135deg, #ffffff 0%, #fffde7 100%);
+            border: var(--border-heavy);
+            border-radius: var(--radius-box);
+            box-shadow: var(--shadow-hard);
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .companion-card {
+            background: linear-gradient(135deg, #131c2e 0%, #0d1522 100%);
+            border-color: #334155;
+            box-shadow: 4px 4px 0px #020617;
+        }
+
+        .companion-speech-bubble {
+            background: #ffffff;
+            border: var(--border-heavy);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: var(--shadow-hard-sm);
+            position: relative;
+            min-height: 85px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+
+        [data-theme="dark"] .companion-speech-bubble {
+            background: #182234;
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.15), 2px 2px 0px #020617;
+            color: #f1f5f9;
+        }
+
+        .companion-speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 36px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #0f172a transparent;
+            display: block;
+            width: 0;
+        }
+
+        [data-theme="dark"] .companion-speech-bubble::after {
+            border-color: #38bdf8 transparent;
+        }
+
+        .companion-btn {
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1.5px solid var(--ink-black);
+            background: #ffffff;
+            color: var(--ink-black);
+            box-shadow: 1.5px 1.5px 0px var(--ink-black);
+            transition: all 0.1s ease;
+            cursor: pointer;
+        }
+        .companion-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 2.5px 2.5px 0px var(--ink-black);
+            background: #fef08a;
+        }
+        [data-theme="dark"] .companion-btn {
+            background: #1e293b;
+            color: #f1f5f9;
+            border-color: #475569;
+            box-shadow: 1.5px 1.5px 0px #020617;
+        }
+        [data-theme="dark"] .companion-btn:hover {
+            background: #334155;
+            color: #38bdf8;
+            border-color: #38bdf8;
+        }
+
+        #threeCanvasContainer {
+            width: 100%;
+            height: 185px;
+            position: relative;
+            cursor: grab;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #threeCanvasContainer:active {
+            cursor: grabbing;
+        }
+
+        .theme-toggle-btn {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: var(--border-heavy);
+            border-radius: 6px;
+            background: var(--brand-yellow);
+            color: var(--ink-black);
+            box-shadow: var(--shadow-hard-sm);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .theme-toggle-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: var(--shadow-hard);
+        }
+        [data-theme="dark"] .theme-toggle-btn {
+            background: #1e293b;
+            color: #fde047;
+            border-color: #475569;
+            box-shadow: 2px 2px 0px #020617;
+        }
+    </style>
+</head>
+<body>
+    <!-- Funky Top Navigation Bar -->
+    <header class="funky-nav py-3">
+        <div class="container d-flex align-items-center justify-content-between">
+            <!-- Zone 1: Brand Wordmark -->
+            <a href="/" class="brand-logo">
+                <span class="brand-bolt"><i class="fas fa-bolt text-dark"></i></span>
+                <span>IOAS <span class="badge bg-dark text-warning px-2 py-1 ms-1 text-uppercase" style="font-size:0.65rem; letter-spacing:0.05em;">Radar</span></span>
+            </a>
+
+            <!-- Zone 2: Navigation Links -->
+            <nav class="d-none d-md-flex align-items-center gap-2">
+                <a href="/" class="nav-funky-link <%= locals.activeNav === 'dashboard' ? 'active' : '' %>">
+                    <i class="fas fa-compass me-1"></i> Dashboard
+                </a>
+                <a href="/alerts" class="nav-funky-link <%= locals.activeNav === 'alerts' ? 'active' : '' %>">
+                    <i class="fab fa-whatsapp text-success me-1"></i> WhatsApp Log
+                </a>
+                <a href="https://t.me/IOAS_AlertBot" target="_blank" rel="noopener noreferrer" class="nav-funky-link">
+                    <i class="fab fa-telegram text-primary me-1"></i> @IOAS_AlertBot
+                </a>
+                <button type="button" class="nav-funky-link border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#assistantModal">
+                    <i class="fas fa-robot text-purple me-1"></i> AI Assistant
+                </button>
+            </nav>
+
+            <!-- Zone 3: Quick Primary Actions & Dark Mode Toggle -->
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Dark Mode Toggle Button -->
+                <button type="button" class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Light / Dark Mode" aria-label="Toggle theme">
+                    <i class="fas fa-moon" id="themeToggleIcon"></i>
+                </button>
+
+                <form action="/fetch-hackathons" method="POST" class="d-inline m-0">
+                    <button type="submit" class="btn btn-funky btn-funky-yellow btn-sm" title="Fetch live Devpost hackathons via Apify service layer into memory">
+                        <i class="fas fa-bolt me-1"></i> Devpost
+                    </button>
+                </form>
+                <form action="/fetch-devfolio" method="POST" class="d-inline m-0">
+                    <button type="submit" class="btn btn-funky btn-funky-purple btn-sm" title="Fetch live Devfolio hackathons via service layer into memory">
+                        <i class="fas fa-cubes me-1"></i> Devfolio
+                    </button>
+                </form>
+                <form action="/run-scraper" method="POST" class="d-inline m-0">
+                    <button type="submit" class="btn btn-funky btn-funky-primary btn-sm">
+                        <i class="fas fa-sync-alt me-1"></i> Sync All
+                    </button>
+                </form>
+                <form action="/send-alerts" method="POST" class="d-inline m-0">
+                    <button type="submit" class="btn btn-funky btn-funky-lime btn-sm">
+                        <i class="fab fa-whatsapp me-1"></i> Trigger Alerts
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <script>
+        // Global Theme Toggle Handler
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('themeToggleBtn');
+            const toggleIcon = document.getElementById('themeToggleIcon');
+
+            function syncThemeIcon(theme) {
+                if (!toggleIcon) return;
+                if (theme === 'dark') {
+                    toggleIcon.className = 'fas fa-sun text-warning';
+                    if (toggleBtn) toggleBtn.setAttribute('title', 'Switch to Light Mode');
+                } else {
+                    toggleIcon.className = 'fas fa-moon';
+                    if (toggleBtn) toggleBtn.setAttribute('title', 'Switch to Dark Mode');
+                }
+            }
+
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            syncThemeIcon(currentTheme);
+
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', () => {
+                    const active = document.documentElement.getAttribute('data-theme') || 'light';
+                    const next = active === 'dark' ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-theme', next);
+                    try { localStorage.setItem('ioas_theme', next); } catch(e) {}
+                    syncThemeIcon(next);
+                    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: next } }));
+                });
+            }
+        });
+    </script>
+
+    <main class="container my-4 flex-grow-1">
+        <% if (locals.flashMessages && flashMessages.length > 0) { %>
+            <% flashMessages.forEach(function(msg) { %>
+                <div class="funky-alert funky-alert-<%= msg.category === 'success' ? 'success' : (msg.category === 'danger' ? 'danger' : 'info') %> d-flex align-items-center justify-content-between" role="alert">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas <%= msg.category === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle' %>"></i>
+                        <span><%= msg.text %></span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% }); %>
+        <% } %>

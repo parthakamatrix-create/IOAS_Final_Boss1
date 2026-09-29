@@ -1,0 +1,1049 @@
+<%- include('partials/header', { activeNav: 'dashboard' }) %>
+
+<!-- Hero Header Section with Interactive 3D Character Companion -->
+<div class="row mb-4 align-items-stretch">
+    <!-- Left Column: Restored Hero Header & Live Search Bar -->
+    <div class="col-lg-7 mb-3 mb-lg-0">
+        <div class="funky-card p-4 h-100 d-flex flex-column justify-content-between" style="background: linear-gradient(135deg, var(--surface-white) 0%, rgba(254, 240, 138, 0.15) 100%);">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                    <span class="tag-stamp tag-yellow"><i class="fas fa-satellite-dish me-1"></i> Live Aggregator</span>
+                    <span class="tag-stamp tag-dark"><i class="fas fa-check-double me-1"></i> Multi-Source Ingestion</span>
+                </div>
+                <h1 class="display-6 font-display fw-bold mb-2">Hackathons, Competitions & Conferences</h1>
+                <p class="text-muted mb-4" style="max-width: 620px;">
+                    Intelligent discovery pipeline aggregating events from Unstop, Devfolio, Devpost, and IEEE with automated deadline WhatsApp alerts.
+                </p>
+            </div>
+            
+            <!-- Quick Live Search & Filter Bar -->
+            <div>
+                <div class="d-flex flex-column flex-sm-row gap-2 mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-2 border-dark" style="border-right: none;">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" id="liveSearchInput" class="form-control form-control-funky" style="border-left: none;" placeholder="Filter by title, platform, or keyword (e.g. AI, Web3, IEEE)...">
+                    </div>
+                    <button type="button" class="btn btn-funky btn-funky-dark" id="clearSearchBtn">
+                        Clear
+                    </button>
+                </div>
+
+                <!-- Mini Metric Badges -->
+                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-2 border-dark flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="tag-stamp tag-lime small"><i class="fas fa-bolt me-1"></i> <%= hackathons.length + competitions.length %> Hackathons</span>
+                        <span class="tag-stamp tag-cyan small"><i class="fas fa-graduation-cap me-1"></i> <%= conferences.length %> Conferences</span>
+                        <span class="tag-stamp tag-yellow small"><i class="fas fa-users me-1"></i> <%= users.length %> Subs</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-funky btn-funky-primary py-1 px-2" data-bs-toggle="modal" data-bs-target="#assistantModal">
+                            <i class="fas fa-robot me-1"></i> Chatbot
+                        </button>
+                        <a href="/alerts" class="btn btn-sm btn-funky btn-funky-white py-1 px-2 text-decoration-none">
+                            <i class="fab fa-whatsapp text-success me-1"></i> Logs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Interactive Animated 3D Character Companion ("Byte") -->
+    <div class="col-lg-5">
+        <div class="companion-card p-3 p-md-4 h-100 d-flex flex-column justify-content-between">
+            <!-- Companion Top Header -->
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span id="companionModeBadge" class="tag-stamp tag-yellow">
+                        ☀️ Byte // Sunny Bot
+                    </span>
+                    <span class="badge bg-dark text-warning font-mono-num text-xs d-none d-sm-inline-block">
+                        3D Companion
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <button type="button" class="companion-btn" id="companionPokeBtn" title="Poke Byte for a 360 Flip!">
+                        <i class="fas fa-magic text-warning me-1"></i> Poke
+                    </button>
+                </div>
+            </div>
+
+            <!-- Speech Bubble with Dynamic Speech -->
+            <div class="companion-speech-bubble mb-2">
+                <div id="companionSpeechText" class="fw-bold small" style="line-height: 1.45;">
+                    Hey developer! 👋 Ready to build something legendary today?
+                </div>
+            </div>
+
+            <!-- Three.js 3D Character Viewport -->
+            <div id="threeCanvasContainer" class="my-1">
+                <!-- Three.js Canvas mounts here -->
+            </div>
+
+            <!-- Interactive Dialogue Trigger Buttons -->
+            <div class="d-flex align-items-center justify-content-between gap-1 flex-wrap pt-2 border-top border-2 border-dark">
+                <button type="button" class="companion-btn" id="btnGreeting">
+                    👋 Greeting
+                </button>
+                <button type="button" class="companion-btn" id="btnJoke">
+                    😂 Joke
+                </button>
+                <button type="button" class="companion-btn" id="btnFact">
+                    💡 Fact
+                </button>
+                <button type="button" class="companion-btn" id="btnRandom">
+                    🎲 Surprise
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Personalize Your Alerts (Requirement #8) -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="funky-card" style="border-top: 4px solid var(--brand-coral);">
+            <div class="funky-card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="tag-stamp tag-coral"><i class="fas fa-bell"></i></span>
+                    <span class="font-display fs-5">Personalize Your Alerts</span>
+                    <span class="text-muted small">· Receive scheduled WhatsApp & Webhook pings</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="tag-stamp tag-yellow">Requirement #8 Compliant</span>
+                    <a href="https://t.me/IOAS_AlertBot" target="_blank" rel="noopener noreferrer" class="tag-stamp tag-dark text-decoration-none">
+                        <i class="fab fa-telegram text-primary me-1"></i> @IOAS_AlertBot
+                    </a>
+                </div>
+            </div>
+            
+            <div class="funky-card-body">
+                <form action="/subscribe" method="POST" class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small text-muted">YOUR NAME</label>
+                        <input type="text" class="form-control form-control-funky" name="name" placeholder="e.g. Alex Morgan" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small text-muted">WHATSAPP / PHONE NUMBER</label>
+                        <input type="text" class="form-control form-control-funky" name="phone" placeholder="e.g. 917219125818" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small text-muted">INTEREST KEYWORDS</label>
+                        <input type="text" class="form-control form-control-funky" id="interestsInput" name="interests" placeholder="e.g. AI, Web3, Cloud">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small text-muted">BRANCH / SPECIALIZATION</label>
+                        <input type="text" class="form-control form-control-funky" name="branch" placeholder="e.g. CSBS, AIML, ECE">
+                    </div>
+
+                    <!-- Interest Quick-Add Tags -->
+                    <div class="col-12">
+                        <div class="d-flex align-items-center gap-2 flex-wrap text-muted small">
+                            <span class="fw-bold">Popular Tags:</span>
+                            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill py-0 px-2 fw-bold text-xs interest-pill" data-tag="AI">+ AI</button>
+                            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill py-0 px-2 fw-bold text-xs interest-pill" data-tag="Web3">+ Web3</button>
+                            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill py-0 px-2 fw-bold text-xs interest-pill" data-tag="Machine Learning">+ Machine Learning</button>
+                            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill py-0 px-2 fw-bold text-xs interest-pill" data-tag="Serverless">+ Serverless</button>
+                            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill py-0 px-2 fw-bold text-xs interest-pill" data-tag="FinTech">+ FinTech</button>
+                            <button type="button" class="btn btn-sm btn-outline-dark rounded-pill py-0 px-2 fw-bold text-xs interest-pill" data-tag="IoT">+ IoT</button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 border-top border-2 border-dark pt-3">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div class="d-flex align-items-center gap-4 flex-wrap">
+                                <span class="fw-bold small">Preferred Events:</span>
+                                <div class="form-check form-check-funky">
+                                    <input class="form-check-input" type="checkbox" name="preferred_types" value="Hackathon" id="chkHack" checked>
+                                    <label class="form-check-label fw-bold" for="chkHack">Hackathons</label>
+                                </div>
+                                <div class="form-check form-check-funky">
+                                    <input class="form-check-input" type="checkbox" name="preferred_types" value="Competition" id="chkComp" checked>
+                                    <label class="form-check-label fw-bold" for="chkComp">Competitions</label>
+                                </div>
+                                <div class="form-check form-check-funky">
+                                    <input class="form-check-input" type="checkbox" name="preferred_types" value="Conference" id="chkConf" checked>
+                                    <label class="form-check-label fw-bold" for="chkConf">Conferences</label>
+                                </div>
+                                
+                                <div class="form-check form-switch ms-md-2">
+                                    <input class="form-check-input" type="checkbox" id="whatsappEnabled" name="whatsapp_enabled" checked>
+                                    <label class="form-check-label fw-bold" for="whatsappEnabled">Enable Alerts</label>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-funky btn-funky-lime px-4">
+                                <i class="fas fa-save me-1"></i> Save Preferences
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Segmented Filter Tabs & Layout Switcher -->
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-2 flex-wrap" id="categoryFilterTabs">
+        <button type="button" class="tab-btn active" data-filter="all">All Opportunities</button>
+        <button type="button" class="tab-btn" data-filter="hackathons">Hackathons (<%= hackathons.length %>)</button>
+        <button type="button" class="tab-btn" data-filter="competitions">Competitions (<%= competitions.length %>)</button>
+        <button type="button" class="tab-btn" data-filter="conferences">Scopus Conferences (<%= conferences.length %>)</button>
+        <button type="button" class="tab-btn" data-filter="urgent">⚡ Urgent Deadlines</button>
+    </div>
+    
+    <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-1 bg-white p-1 border border-2 border-dark rounded">
+            <button type="button" class="btn btn-sm btn-funky-primary px-2 py-1 fw-bold text-xs view-switch-btn active" id="viewGridBtn" title="3-Column Funky Card Grid">
+                <i class="fas fa-th-large me-1"></i> Grid
+            </button>
+            <button type="button" class="btn btn-sm btn-funky-white px-2 py-1 fw-bold text-xs view-switch-btn" id="viewColumnsBtn" title="Split Category Columns">
+                <i class="fas fa-columns me-1"></i> Split
+            </button>
+        </div>
+        <div class="text-muted small">
+            Showing <span id="visibleCount" class="fw-bold text-dark font-mono-num"><%= hackathons.length + competitions.length + conferences.length %></span> opportunities
+        </div>
+    </div>
+</div>
+
+<!-- View 1: Funky Modern Card Grid Component (Default) -->
+<div id="gridContainerView">
+    <%- include('partials/opportunities-grid', { opportunities: opportunities }) %>
+</div>
+
+<!-- View 2: Split Columns View (Alternative) -->
+<div class="row d-none" id="splitColumnsView">
+    <!-- Hackathons & Competitions Column -->
+    <div class="col-lg-6" id="hackathonsColumn">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h3 class="font-display fs-5 mb-0">
+                <i class="fas fa-laptop-code text-primary me-2"></i> Hackathons & Challenges
+            </h3>
+            <span class="tag-stamp tag-yellow"><%= hackathons.length + competitions.length %> Active</span>
+        </div>
+        
+        <% const hackComps = [...hackathons, ...competitions]; %>
+        <% if (hackComps.length > 0) { %>
+            <% hackComps.forEach(function(opp) { 
+                const now = new Date();
+                let daysLeft = null;
+                let isUrgent = false;
+                if (opp.registration_deadline) {
+                    const regDate = new Date(opp.registration_deadline);
+                    daysLeft = Math.ceil((regDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                    if (daysLeft <= 14) isUrgent = true;
+                }
+            %>
+            <div class="funky-card opp-card" 
+                 data-type="<%= opp.type.toLowerCase() %>" 
+                 data-platform="<%= opp.source_platform.toLowerCase() %>" 
+                 data-urgent="<%= isUrgent ? 'true' : 'false' %>"
+                 data-text="<%= (opp.title + ' ' + (opp.category || '') + ' ' + opp.source_platform + ' ' + (opp.organizer || '')).toLowerCase() %>">
+                <div class="funky-card-header bg-white">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="tag-stamp <%= opp.type === 'Hackathon' ? 'tag-lime' : 'tag-purple' %>"><%= opp.type %></span>
+                        <span class="tag-stamp tag-dark"><%= opp.source_platform %></span>
+                        <% if (isUrgent && daysLeft !== null) { %>
+                            <span class="tag-stamp tag-coral font-mono-num">
+                                <i class="fas fa-fire me-1"></i> <%= daysLeft > 0 ? daysLeft + 'd left' : 'Today!' %>
+                            </span>
+                        <% } %>
+                    </div>
+                    <% if (opp.organizer) { %>
+                        <span class="text-muted small d-none d-sm-inline font-mono-num"><%= opp.organizer %></span>
+                    <% } %>
+                </div>
+                
+                <div class="funky-card-body">
+                    <h4 class="font-display fs-5 mb-2"><%= opp.title %></h4>
+                    
+                    <% if (opp.category) { %>
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-tag text-muted me-1"></i> <%= opp.category %>
+                        </p>
+                    <% } %>
+                    
+                    <div class="p-3 bg-light rounded border border-1 border-dark mb-3 small font-mono-num">
+                        <% if (opp.registration_deadline) { %>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="text-muted">Registration Deadline:</span>
+                                <span class="fw-bold text-danger">
+                                    <i class="fas fa-stopwatch me-1"></i> <%= opp.registration_deadline.split('T')[0] %>
+                                </span>
+                            </div>
+                        <% } %>
+                        <% if (opp.submission_deadline) { %>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Submission Deadline:</span>
+                                <span class="fw-bold text-dark">
+                                    <i class="fas fa-upload me-1"></i> <%= opp.submission_deadline.split('T')[0] %>
+                                </span>
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="text-muted small">Verified Platform Link</span>
+                        <a href="<%= opp.url %>" target="_blank" rel="noopener noreferrer" class="btn btn-funky btn-funky-white btn-sm">
+                            View Opportunity <i class="fas fa-external-link-alt ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        <% } else { %>
+            <div class="funky-card p-4 text-center text-muted">
+                <i class="fas fa-inbox fa-3x mb-3 text-secondary"></i>
+                <p class="fw-bold">No hackathons or competitions found.</p>
+                <form action="/run-scraper" method="POST">
+                    <button type="submit" class="btn btn-funky btn-funky-primary btn-sm">Run Aggregation Pipeline</button>
+                </form>
+            </div>
+        <% } %>
+    </div>
+    
+    <!-- Scopus-Indexed Conferences Column -->
+    <div class="col-lg-6" id="conferencesColumn">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h3 class="font-display fs-5 mb-0">
+                <i class="fas fa-book-open text-success me-2"></i> Scopus-Indexed Conferences
+            </h3>
+            <span class="tag-stamp tag-green"><%= conferences.length %> Verified</span>
+        </div>
+        
+        <% if (conferences.length > 0) { %>
+            <% conferences.forEach(function(opp) { 
+                const now = new Date();
+                let daysLeft = null;
+                let isUrgent = false;
+                if (opp.submission_deadline) {
+                    const subDate = new Date(opp.submission_deadline);
+                    daysLeft = Math.ceil((subDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                    if (daysLeft <= 14) isUrgent = true;
+                }
+            %>
+            <div class="funky-card opp-card" 
+                 data-type="conference" 
+                 data-platform="<%= opp.source_platform.toLowerCase() %>" 
+                 data-urgent="<%= isUrgent ? 'true' : 'false' %>"
+                 data-text="<%= (opp.title + ' ' + (opp.category || '') + ' ' + opp.source_platform + ' ' + (opp.organizer || '')).toLowerCase() %>"
+                 style="border-left: 6px solid #22c55e;">
+                <div class="funky-card-header bg-white">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="tag-stamp tag-green">
+                            <i class="fas fa-check-circle me-1"></i> Verified Scopus
+                        </span>
+                        <span class="tag-stamp tag-dark"><%= opp.source_platform %></span>
+                        <% if (isUrgent && daysLeft !== null) { %>
+                            <span class="tag-stamp tag-coral font-mono-num">
+                                <i class="fas fa-fire me-1"></i> <%= daysLeft > 0 ? daysLeft + 'd to sub' : 'Submitting!' %>
+                            </span>
+                        <% } %>
+                    </div>
+                    <% if (opp.organizer) { %>
+                        <span class="text-muted small d-none d-sm-inline font-mono-num"><%= opp.organizer %></span>
+                    <% } %>
+                </div>
+                
+                <div class="funky-card-body">
+                    <h4 class="font-display fs-5 mb-2"><%= opp.title %></h4>
+                    
+                    <% if (opp.category) { %>
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-microscope text-muted me-1"></i> <%= opp.category %>
+                        </p>
+                    <% } %>
+                    
+                    <!-- 4-Stage Milestone Matrix -->
+                    <div class="p-3 bg-light rounded border border-1 border-dark mb-3 small font-mono-num">
+                        <div class="row g-2">
+                            <div class="col-6 border-bottom border-1 border-secondary-subtle pb-1">
+                                <div class="text-muted" style="font-size: 0.75rem;">REGISTRATION</div>
+                                <div class="fw-bold"><%= opp.registration_deadline ? opp.registration_deadline.split('T')[0] : 'Open' %></div>
+                            </div>
+                            <div class="col-6 border-bottom border-1 border-secondary-subtle pb-1">
+                                <div class="text-muted" style="font-size: 0.75rem;">PAPER SUBMISSION</div>
+                                <div class="fw-bold text-danger"><%= opp.submission_deadline ? opp.submission_deadline.split('T')[0] : 'N/A' %></div>
+                            </div>
+                            <div class="col-6 pt-1">
+                                <div class="text-muted" style="font-size: 0.75rem;">NOTIFICATION</div>
+                                <div class="fw-bold"><%= opp.notification_date ? opp.notification_date.split('T')[0] : 'N/A' %></div>
+                            </div>
+                            <div class="col-6 pt-1">
+                                <div class="text-muted" style="font-size: 0.75rem;">CAMERA-READY</div>
+                                <div class="fw-bold"><%= opp.camera_ready_deadline ? opp.camera_ready_deadline.split('T')[0] : 'N/A' %></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="tag-stamp tag-lime" style="font-size: 0.65rem;">
+                            <i class="fas fa-award me-1"></i> Peer Reviewed
+                        </span>
+                        <a href="<%= opp.url %>" target="_blank" rel="noopener noreferrer" class="btn btn-funky btn-funky-lime btn-sm">
+                            View Conference <i class="fas fa-external-link-alt ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        <% } else { %>
+            <div class="funky-card p-4 text-center text-muted">
+                <i class="fas fa-graduation-cap fa-3x mb-3 text-secondary"></i>
+                <p class="fw-bold">No Scopus conferences found.</p>
+                <form action="/run-scraper" method="POST">
+                    <button type="submit" class="btn btn-funky btn-funky-primary btn-sm">Run Aggregation Pipeline</button>
+                </form>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<!-- No Results Search Fallback -->
+<div id="noResultsMsg" class="funky-card p-5 text-center d-none">
+    <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
+    <h4 class="font-display">No matching opportunities found</h4>
+    <p class="text-muted">Try adjusting your search query or reset category filter.</p>
+    <button type="button" class="btn btn-funky btn-funky-primary btn-sm" id="resetFiltersBtn">
+        Reset All Filters
+    </button>
+</div>
+
+<!-- Client-side Interactive Filter Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('liveSearchInput');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+        const filterTabs = document.querySelectorAll('.tab-btn');
+        const gridItems = document.querySelectorAll('.funky-grid-item');
+        const columnCards = document.querySelectorAll('.opp-card');
+        const visibleCountSpan = document.getElementById('visibleCount');
+        const gridTotalCountSpan = document.querySelector('.grid-total-count');
+        const noResultsMsg = document.getElementById('noResultsMsg');
+        const interestsInput = document.getElementById('interestsInput');
+        
+        // Layout switcher buttons
+        const viewGridBtn = document.getElementById('viewGridBtn');
+        const viewColumnsBtn = document.getElementById('viewColumnsBtn');
+        const gridContainerView = document.getElementById('gridContainerView');
+        const splitColumnsView = document.getElementById('splitColumnsView');
+
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let activeView = 'grid'; // 'grid' or 'columns'
+
+        if (viewGridBtn && viewColumnsBtn) {
+            viewGridBtn.addEventListener('click', () => {
+                activeView = 'grid';
+                viewGridBtn.classList.add('btn-funky-primary', 'active');
+                viewGridBtn.classList.remove('btn-funky-white');
+                viewColumnsBtn.classList.add('btn-funky-white');
+                viewColumnsBtn.classList.remove('btn-funky-primary', 'active');
+                gridContainerView.classList.remove('d-none');
+                splitColumnsView.classList.add('d-none');
+                updateVisibility();
+            });
+
+            viewColumnsBtn.addEventListener('click', () => {
+                activeView = 'columns';
+                viewColumnsBtn.classList.add('btn-funky-primary', 'active');
+                viewColumnsBtn.classList.remove('btn-funky-white');
+                viewGridBtn.classList.add('btn-funky-white');
+                viewGridBtn.classList.remove('btn-funky-primary', 'active');
+                splitColumnsView.classList.remove('d-none');
+                gridContainerView.classList.add('d-none');
+                updateVisibility();
+            });
+        }
+
+        function updateVisibility() {
+            let visibleCount = 0;
+            const targetCards = activeView === 'grid' ? gridItems : columnCards;
+
+            // Also keep other view synced
+            const allCards = document.querySelectorAll('.funky-grid-item, .opp-card');
+
+            allCards.forEach(card => {
+                const type = card.getAttribute('data-type') || '';
+                const isUrgent = card.getAttribute('data-urgent') === 'true';
+                const text = card.getAttribute('data-text') || '';
+
+                // Filter tab check
+                let matchesTab = false;
+                if (currentFilter === 'all') matchesTab = true;
+                else if (currentFilter === 'hackathons' && type === 'hackathon') matchesTab = true;
+                else if (currentFilter === 'competitions' && type === 'competition') matchesTab = true;
+                else if (currentFilter === 'conferences' && type === 'conference') matchesTab = true;
+                else if (currentFilter === 'urgent' && isUrgent) matchesTab = true;
+
+                // Search query check
+                const matchesSearch = !searchQuery || text.includes(searchQuery);
+
+                if (matchesTab && matchesSearch) {
+                    card.classList.remove('d-none');
+                } else {
+                    card.classList.add('d-none');
+                }
+            });
+
+            // Count visible items in active view
+            targetCards.forEach(card => {
+                if (!card.classList.contains('d-none')) {
+                    visibleCount++;
+                }
+            });
+
+            if (visibleCountSpan) visibleCountSpan.textContent = visibleCount;
+            if (gridTotalCountSpan) gridTotalCountSpan.textContent = visibleCount;
+            if (noResultsMsg) {
+                if (visibleCount === 0) noResultsMsg.classList.remove('d-none');
+                else noResultsMsg.classList.add('d-none');
+            }
+        }
+
+        // Search input event
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.toLowerCase().trim();
+                updateVisibility();
+            });
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchQuery = '';
+                updateVisibility();
+            });
+        }
+
+        // Tab button click event
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.getAttribute('data-filter') || 'all';
+                updateVisibility();
+            });
+        });
+
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchQuery = '';
+                filterTabs.forEach(t => t.classList.remove('active'));
+                filterTabs[0].classList.add('active');
+                currentFilter = 'all';
+                updateVisibility();
+            });
+        }
+
+        // Quick add interest tag pills
+        document.querySelectorAll('.interest-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                const tag = pill.getAttribute('data-tag');
+                if (!tag || !interestsInput) return;
+                const currentVals = interestsInput.value.split(',').map(s => s.trim()).filter(Boolean);
+                if (!currentVals.includes(tag)) {
+                    currentVals.push(tag);
+                    interestsInput.value = currentVals.join(', ');
+                }
+            });
+        });
+
+        // ==========================================
+        // INTERACTIVE 3D ANIMATED CHARACTER COMPANION
+        // Mode-Reactive Personality (Light & Dark)
+        // ==========================================
+        const container = document.getElementById('threeCanvasContainer');
+        const speechTextEl = document.getElementById('companionSpeechText');
+        const modeBadgeEl = document.getElementById('companionModeBadge');
+
+        const DIALOGUES = {
+            light: {
+                greetings: [
+                    "Hey there, superstar developer! 👋 Ready to build something legendary today?",
+                    "Good day! ☀️ Every big breakthrough starts with a single line of code.",
+                    "Welcome back! The hackathon radars are primed and waiting for you!",
+                    "Bright ideas and clean code today! Let's find your next competition.",
+                    "Hello world! 🌍 Byte is online and cheering for your next MVP!"
+                ],
+                jokes: [
+                    "Why do Java developers wear glasses? Because they don't C#! 😂",
+                    "There are 10 types of people in the world: those who understand binary, and those who don't.",
+                    "A programmer's wife asks: 'Go to the store and buy a loaf of bread. If they have eggs, buy a dozen.' The programmer returns with 12 loaves of bread.",
+                    "Why was the JavaScript developer sad? Because they didn't Node how to Express themselves! 📦",
+                    "Why do programmers hate nature? It has way too many bugs. 🪲",
+                    "Eight bytes walk into a bar. The bartender asks: 'Can I get you anything?' One replies: 'Make us a double, we're feeling a bit byte-sized!'"
+                ],
+                facts: [
+                    "💡 The first computer programmer was Ada Lovelace in 1843, working on Babbage's Analytical Engine!",
+                    "💡 Over 90% of winning hackathon teams focus on solving one sharp real-world problem rather than 10 complex ones.",
+                    "💡 Git was created by Linus Torvalds in just 10 days because he was unhappy with existing version control tools.",
+                    "💡 Python was named after the Monty Python comedy troupe, not the snake!",
+                    "💡 The first computer mouse was invented by Douglas Engelbart in 1964, carved from wood with two metal wheels."
+                ]
+            },
+            dark: {
+                greetings: [
+                    "Welcome to the shadows, terminal dweller. 🕶️ What system are we hacking today?",
+                    "02:00 AM vibes detected. 🌙 The best commits happen while the world is sleeping.",
+                    "Root access granted. Ready to conquer production without testing in staging?",
+                    "Stealth mode active. No bugs can spot us in the dark. Let's hunt some hackathons.",
+                    "Welcome to night ops. High caffeine, low latency, zero distractions."
+                ],
+                jokes: [
+                    "Why do real programmers prefer dark mode? Because light attracts bugs, and our eyes are basically vampires! 🦇",
+                    "A SQL query walks into a dark bar, approaches two tables, and whispers: 'Can I JOIN you in the shadows?' 🍸",
+                    "My code doesn't have bugs; it has unannounced stealth capabilities that only activate under pressure.",
+                    "There is no place like 127.0.0.1... especially at 3 AM with dark mode on.",
+                    "!false — it's funny because it's true.",
+                    "Documentation is like dark matter: 85% of engineers believe it exists, but nobody has ever seen it in production."
+                ],
+                facts: [
+                    "💡 In 1999, the iconic Matrix digital rain code was actually created by scanning Japanese sushi cookbook recipes!",
+                    "💡 Over 82% of software engineers code primarily in dark mode to prevent blue light insomnia during late-night sprints.",
+                    "💡 The term 'computer bug' originated when Grace Hopper found an actual moth trapped inside the Harvard Mark II in 1947.",
+                    "💡 The Apollo 11 guidance computer code had only 64 kilobytes of memory and ran at 0.043 MHz — yet landed humans on the Moon!",
+                    "💡 In Unix, the term 'daemon' comes from Maxwell's demon, an imaginary entity constantly working in the background."
+                ]
+            }
+        };
+
+        let currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        let isDarkMode = currentTheme === 'dark';
+
+        function speak(text, isSurprise = false) {
+            if (!speechTextEl) return;
+            speechTextEl.style.opacity = '0';
+            speechTextEl.style.transform = 'translateY(4px)';
+            speechTextEl.style.transition = 'all 0.15s ease';
+            
+            setTimeout(() => {
+                speechTextEl.textContent = text;
+                speechTextEl.style.opacity = '1';
+                speechTextEl.style.transform = 'translateY(0)';
+            }, 150);
+
+            if (window.triggerBotCheer) {
+                window.triggerBotCheer(isSurprise);
+            }
+        }
+
+        function getRandomFrom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // Action Buttons Setup
+        const btnGreeting = document.getElementById('btnGreeting');
+        const btnJoke = document.getElementById('btnJoke');
+        const btnFact = document.getElementById('btnFact');
+        const btnRandom = document.getElementById('btnRandom');
+        const btnPoke = document.getElementById('companionPokeBtn');
+
+        if (btnGreeting) {
+            btnGreeting.addEventListener('click', () => {
+                const pool = isDarkMode ? DIALOGUES.dark.greetings : DIALOGUES.light.greetings;
+                speak(getRandomFrom(pool));
+            });
+        }
+
+        if (btnJoke) {
+            btnJoke.addEventListener('click', () => {
+                const pool = isDarkMode ? DIALOGUES.dark.jokes : DIALOGUES.light.jokes;
+                speak(getRandomFrom(pool));
+            });
+        }
+
+        if (btnFact) {
+            btnFact.addEventListener('click', () => {
+                const pool = isDarkMode ? DIALOGUES.dark.facts : DIALOGUES.light.facts;
+                speak(getRandomFrom(pool));
+            });
+        }
+
+        if (btnRandom) {
+            btnRandom.addEventListener('click', () => {
+                const modeData = isDarkMode ? DIALOGUES.dark : DIALOGUES.light;
+                const all = [...modeData.greetings, ...modeData.jokes, ...modeData.facts];
+                speak(getRandomFrom(all), true);
+            });
+        }
+
+        if (btnPoke) {
+            btnPoke.addEventListener('click', () => {
+                if (window.triggerBotFlip) window.triggerBotFlip();
+                const pokeLines = isDarkMode ? [
+                    "Whoa! Watch the neural link! ⚡ Running sub-zero diagnostics...",
+                    "Critical poke received! Deploying defensive backflip! 🕶️",
+                    "Hey! System temperature spiked! Don't touch the quantum core!"
+                ] : [
+                    "Wheee! 360 flip activated! ⭐ You're awesome!",
+                    "Boop! High-five received! Ready for the next hackathon round! 🚀",
+                    "Giggle! That tickles my circuits! Let's build something great!"
+                ];
+                speak(getRandomFrom(pokeLines), true);
+            });
+        }
+
+        // Initialize Three.js 3D Scene
+        if (container && window.THREE) {
+            const width = container.clientWidth || 360;
+            const height = 185;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            camera.position.set(0, 0.2, 5.2);
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.shadowMap.enabled = false;
+            container.appendChild(renderer.domElement);
+
+            // Lighting Setup
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+            scene.add(ambientLight);
+
+            const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            keyLight.position.set(4, 5, 4);
+            scene.add(keyLight);
+
+            const rimLight = new THREE.PointLight(0x38bdf8, 1.8, 10);
+            rimLight.position.set(-3, -1, -2);
+            scene.add(rimLight);
+
+            // 3D Robot Root Group
+            const botRoot = new THREE.Group();
+            scene.add(botRoot);
+
+            // Head Group
+            const headGroup = new THREE.Group();
+            botRoot.add(headGroup);
+
+            // Head Chassis
+            const headGeo = new THREE.SphereGeometry(1.0, 32, 28);
+            headGeo.scale(1.15, 1.0, 0.95);
+            const chassisMat = new THREE.MeshStandardMaterial({
+                color: isDarkMode ? 0x111827 : 0xffffff,
+                roughness: isDarkMode ? 0.35 : 0.2,
+                metalness: isDarkMode ? 0.85 : 0.15
+            });
+            const headMesh = new THREE.Mesh(headGeo, chassisMat);
+            headGroup.add(headMesh);
+
+            // Glossy Visor Screen
+            const visorGeo = new THREE.BoxGeometry(1.4, 0.55, 0.35);
+            const visorMat = new THREE.MeshStandardMaterial({
+                color: isDarkMode ? 0x050811 : 0x0f172a,
+                roughness: 0.1,
+                metalness: 0.9
+            });
+            const visorMesh = new THREE.Mesh(visorGeo, visorMat);
+            visorMesh.position.set(0, 0.05, 0.82);
+            headGroup.add(visorMesh);
+
+            // Glowing Eyes (Using SphereGeometry with scaling - fully supported in all Three.js versions)
+            const eyeGeo = new THREE.SphereGeometry(0.13, 16, 16);
+            eyeGeo.scale(1.4, 0.8, 0.7);
+
+            const eyeMat = new THREE.MeshStandardMaterial({
+                color: isDarkMode ? 0x10b981 : 0x06b6d4,
+                emissive: isDarkMode ? 0x10b981 : 0x06b6d4,
+                emissiveIntensity: 2.2,
+                roughness: 0.1
+            });
+
+            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+            leftEye.position.set(-0.35, 0.05, 1.01);
+            headGroup.add(leftEye);
+
+            const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+            rightEye.position.set(0.35, 0.05, 1.01);
+            headGroup.add(rightEye);
+
+            // Antenna & Glowing Orb
+            const antennaStemGeo = new THREE.CylinderGeometry(0.04, 0.05, 0.6, 12);
+            const metalMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8, roughness: 0.3 });
+            const antennaStem = new THREE.Mesh(antennaStemGeo, metalMat);
+            antennaStem.position.set(0, 1.15, 0);
+            headGroup.add(antennaStem);
+
+            const orbGeo = new THREE.SphereGeometry(0.18, 16, 16);
+            const orbMat = new THREE.MeshStandardMaterial({
+                color: isDarkMode ? 0xa855f7 : 0xfacc15,
+                emissive: isDarkMode ? 0xa855f7 : 0xfacc15,
+                emissiveIntensity: 2.4
+            });
+            const antennaOrb = new THREE.Mesh(orbGeo, orbMat);
+            antennaOrb.position.set(0, 1.5, 0);
+            headGroup.add(antennaOrb);
+
+            // Ear Sensor Headphones
+            const earGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.2, 16);
+            earGeo.rotateZ(Math.PI / 2);
+            const earMat = new THREE.MeshStandardMaterial({
+                color: isDarkMode ? 0x334155 : 0xfde047,
+                metalness: 0.5,
+                roughness: 0.3
+            });
+            const leftEar = new THREE.Mesh(earGeo, earMat);
+            leftEar.position.set(-1.22, 0.05, 0);
+            headGroup.add(leftEar);
+
+            const rightEar = new THREE.Mesh(earGeo, earMat);
+            rightEar.position.set(1.22, 0.05, 0);
+            headGroup.add(rightEar);
+
+            // Body Chassis (Compact Pod)
+            const bodyGeo = new THREE.SphereGeometry(0.72, 24, 20);
+            bodyGeo.scale(1.0, 0.85, 0.85);
+            const bodyMesh = new THREE.Mesh(bodyGeo, chassisMat);
+            bodyMesh.position.set(0, -1.0, 0);
+            botRoot.add(bodyMesh);
+
+            // Core Reactor Emblem on Chest
+            const coreGeo = new THREE.SphereGeometry(0.16, 16, 16);
+            const coreMat = new THREE.MeshStandardMaterial({
+                color: isDarkMode ? 0x38bdf8 : 0xfb923c,
+                emissive: isDarkMode ? 0x38bdf8 : 0xfb923c,
+                emissiveIntensity: 2.0
+            });
+            const coreEmblem = new THREE.Mesh(coreGeo, coreMat);
+            coreEmblem.position.set(0, -0.92, 0.65);
+            botRoot.add(coreEmblem);
+
+            // Rotating Thruster Hover Ring Below Body
+            const ringGeo = new THREE.TorusGeometry(0.55, 0.09, 16, 32);
+            ringGeo.rotateX(Math.PI / 2);
+            const ringMat = new THREE.MeshStandardMaterial({
+                color: isDarkMode ? 0x10b981 : 0x06b6d4,
+                emissive: isDarkMode ? 0x10b981 : 0x06b6d4,
+                emissiveIntensity: 1.6,
+                roughness: 0.2
+            });
+            const thrusterRing = new THREE.Mesh(ringGeo, ringMat);
+            thrusterRing.position.set(0, -1.55, 0);
+            botRoot.add(thrusterRing);
+
+            // Floating Magnetic Hands
+            const handGeo = new THREE.SphereGeometry(0.22, 16, 16);
+            const leftHand = new THREE.Mesh(handGeo, chassisMat);
+            leftHand.position.set(-1.35, -0.9, 0.3);
+            botRoot.add(leftHand);
+
+            const rightHand = new THREE.Mesh(handGeo, chassisMat);
+            rightHand.position.set(1.35, -0.9, 0.3);
+            botRoot.add(rightHand);
+
+            // Orbiting Stardust Particles
+            const particleCount = 28;
+            const particleGeo = new THREE.BufferGeometry();
+            const particlePos = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                particlePos[i] = (Math.random() - 0.5) * 4.5;
+                particlePos[i + 1] = (Math.random() - 0.5) * 3.5;
+                particlePos[i + 2] = (Math.random() - 0.5) * 3.0;
+            }
+            particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+            const particleMat = new THREE.PointsMaterial({
+                color: isDarkMode ? 0x10b981 : 0x38bdf8,
+                size: 0.12,
+                transparent: true,
+                opacity: 0.8
+            });
+            const particles = new THREE.Points(particleGeo, particleMat);
+            scene.add(particles);
+
+            // Interactive Animation State
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetRotY = 0;
+            let targetRotX = 0;
+            let isCheering = false;
+            let cheerStartTime = 0;
+            let flipProgress = 0;
+            let isFlipping = false;
+
+            // Track Mouse Position over Window
+            window.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                mouseX = (e.clientX - cx) / (window.innerWidth / 2);
+                mouseY = (e.clientY - cy) / (window.innerHeight / 2);
+
+                targetRotY = Math.max(-0.6, Math.min(0.6, mouseX * 0.9));
+                targetRotX = Math.max(-0.35, Math.min(0.35, -mouseY * 0.6));
+            });
+
+            // Click to Poke/Flip Byte
+            container.addEventListener('click', () => {
+                if (btnPoke) btnPoke.click();
+            });
+
+            window.triggerBotFlip = function() {
+                isFlipping = true;
+                flipProgress = 0;
+            };
+
+            window.triggerBotCheer = function(isSuper = false) {
+                isCheering = true;
+                cheerStartTime = performance.now();
+                if (isSuper) {
+                    window.triggerBotFlip();
+                }
+            };
+
+            // Switch Theme Reactive Function
+            function applyThemeToRobot(theme) {
+                isDarkMode = theme === 'dark';
+
+                if (modeBadgeEl) {
+                    if (isDarkMode) {
+                        modeBadgeEl.className = 'tag-stamp tag-dark';
+                        modeBadgeEl.innerHTML = '🕶️ Byte // Shadow Hacker Mode';
+                    } else {
+                        modeBadgeEl.className = 'tag-stamp tag-yellow';
+                        modeBadgeEl.innerHTML = '☀️ Byte // Sunny Bot';
+                    }
+                }
+
+                if (isDarkMode) {
+                    // Dark Mode Stealth / Hacker Persona
+                    chassisMat.color.setHex(0x111827);
+                    chassisMat.metalness = 0.85;
+                    chassisMat.roughness = 0.3;
+
+                    eyeMat.color.setHex(0x10b981);
+                    eyeMat.emissive.setHex(0x10b981);
+                    eyeMat.emissiveIntensity = 2.8;
+
+                    antennaOrb.material.color.setHex(0xa855f7);
+                    antennaOrb.material.emissive.setHex(0xa855f7);
+
+                    coreEmblem.material.color.setHex(0x38bdf8);
+                    coreEmblem.material.emissive.setHex(0x38bdf8);
+
+                    thrusterRing.material.color.setHex(0x10b981);
+                    thrusterRing.material.emissive.setHex(0x10b981);
+
+                    earMat.color.setHex(0x1e293b);
+                    rimLight.color.setHex(0xa855f7);
+                    particleMat.color.setHex(0x10b981);
+
+                    // Trigger cool 360 spin when entering dark mode
+                    window.triggerBotFlip();
+                    speak("Dark mode engaged. Stealth protocols active... Now the bugs can't see us in the dark. 🕶️");
+                } else {
+                    // Light Mode Sunny / Cheerful Persona
+                    chassisMat.color.setHex(0xffffff);
+                    chassisMat.metalness = 0.15;
+                    chassisMat.roughness = 0.2;
+
+                    eyeMat.color.setHex(0x06b6d4);
+                    eyeMat.emissive.setHex(0x06b6d4);
+                    eyeMat.emissiveIntensity = 2.2;
+
+                    antennaOrb.material.color.setHex(0xfacc15);
+                    antennaOrb.material.emissive.setHex(0xfacc15);
+
+                    coreEmblem.material.color.setHex(0xfb923c);
+                    coreEmblem.material.emissive.setHex(0xfb923c);
+
+                    thrusterRing.material.color.setHex(0x06b6d4);
+                    thrusterRing.material.emissive.setHex(0x06b6d4);
+
+                    earMat.color.setHex(0xfde047);
+                    rimLight.color.setHex(0x38bdf8);
+                    particleMat.color.setHex(0x38bdf8);
+
+                    window.triggerBotFlip();
+                    speak("Sunlight restored! ☀️ Let's build something bright and conquer the leaderboard!");
+                }
+            }
+
+            // Sync with initial theme
+            applyThemeToRobot(currentTheme);
+
+            // Listen to Dark Mode toggle events
+            window.addEventListener('themeChanged', (e) => {
+                applyThemeToRobot(e.detail.theme);
+            });
+
+            // Resize handling
+            function onWindowResize() {
+                const newWidth = container.clientWidth || 360;
+                camera.aspect = newWidth / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(newWidth, height);
+            }
+            window.addEventListener('resize', onWindowResize);
+
+            // 60FPS Animation Loop
+            let clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const time = clock.getElapsedTime();
+
+                // Dynamic Hover Bobbing Behavior based on Mode
+                const bobSpeed = isDarkMode ? 3.0 : 1.8;
+                const bobAmp = isDarkMode ? 0.16 : 0.12;
+                botRoot.position.y = Math.sin(time * bobSpeed) * bobAmp;
+
+                // Thruster Ring Rotation
+                thrusterRing.rotation.z += isDarkMode ? 0.06 : 0.03;
+
+                // Particles Drift
+                particles.rotation.y += isDarkMode ? 0.008 : 0.003;
+
+                // Head Smooth Cursor Tracking
+                headGroup.rotation.y += (targetRotY - headGroup.rotation.y) * 0.08;
+                headGroup.rotation.x += (targetRotX - headGroup.rotation.x) * 0.08;
+
+                // Idle Hands Floating
+                leftHand.position.y = -0.9 + Math.sin(time * bobSpeed + 0.8) * 0.08;
+                rightHand.position.y = -0.9 + Math.sin(time * bobSpeed + 1.6) * 0.08;
+
+                // Right Hand Waving during cheer or joke
+                if (isCheering && performance.now() - cheerStartTime < 2500) {
+                    rightHand.position.y = -0.3 + Math.sin(time * 14) * 0.25;
+                    rightHand.position.x = 1.45 + Math.cos(time * 14) * 0.1;
+                } else {
+                    isCheering = false;
+                    rightHand.position.x = 1.35;
+                }
+
+                // 360 Acrobatic Flip Animation
+                if (isFlipping) {
+                    flipProgress += 0.07;
+                    botRoot.rotation.y = flipProgress * Math.PI * 2;
+                    botRoot.position.y += Math.sin(flipProgress * Math.PI) * 0.4;
+                    if (flipProgress >= 1) {
+                        botRoot.rotation.y = 0;
+                        isFlipping = false;
+                    }
+                }
+
+                // Subtle Twitch in Dark Mode ("Cyber Glitch Scan")
+                if (isDarkMode && Math.random() < 0.015) {
+                    headGroup.rotation.z = (Math.random() - 0.5) * 0.15;
+                } else {
+                    headGroup.rotation.z *= 0.9;
+                }
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+        }
+    });
+</script>
+
+<%- include('partials/footer') %>
